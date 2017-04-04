@@ -1,10 +1,10 @@
 /**
  * 说明：
  * 坐标系为计算机中常用的左手系，
- * 在整个游戏区域内，左上角是(0, 0)右下角是(1, 1)
- * Game.Game类中有相对坐标和绝对坐标的转换方法
+ * 使用方形坐标，以宽度为基准1，
+ * 在整个游戏区域内，左上角是(0, 0)，右下角是(1, h / w)，
+ * Game.game对象中有相对坐标和绝对坐标的转换方法
  */
-
 
 var Game = Game || {};
 
@@ -14,7 +14,7 @@ Game.const = {
     imgBlockPath: 'images/block.png',
     imgPlanePath: 'images/plane.png',
     planeWidth: .1,
-    planeHeight: .01
+    planeHeight: .1
 };
 
 Game.util = {};
@@ -35,11 +35,12 @@ Game.util.buildRotate = function (theta) {
 Game.game = {};
 Game.game.init = function () {
     Game.game.getElements();
-    Game.game.y = 0;
     Game.game.blocks = [];
     Game.game.planes = [];
     window.addEventListener('resize', Game.game.resize);
     Game.game.resize();
+    Game.game.y = 0;
+    Game.game.height = Game.game.height / Game.game.width;
 };
 Game.game.getElements = function () {
     Game.game.elements = {};
@@ -57,9 +58,28 @@ Game.game.resize = function () {
     Game.game.elements.base.style.width = window.innerWidth + 'px';
     Game.game.elements.base.style.height = window.innerHeight + 'px';
     Game.game.elements.backgroundImage.style.width = window.innerWidth + 'px';
-    Game.game.width = Game.game.elements.backgroundImage.clientWidth;
-    Game.game.height = Game.game.elements.backgroundImage.clientHeight;
-    Game.game.paintBlocks();
+    /**
+     * 单位长度
+     * @type {number}
+     */
+    Game.game.xi = Game.game.elements.backgroundImage.clientWidth;
+    /**
+     * 纵向最大高度
+     * @type {number}
+     */
+    Game.game.ym = Game.game.elements.backgroundImage.clientHeight / Game.game.elements.backgroundImage.clientWidth;
+    Game.game.resizeBlocks();
+    Game.game.resizePlanes();
+};
+Game.game.resizeBlocks = function () {
+    for (var i = 0; i < Game.game.blocks.length; ++i) {
+        Game.game.blocks[i].resize();
+    }
+};
+Game.game.resizePlanes = function () {
+    for (var i = 0; i < Game.game.planes.length; ++i) {
+        Game.game.planes[i].resize();
+    }
 };
 
 Game.game.paint = function () {
@@ -67,11 +87,6 @@ Game.game.paint = function () {
     for (i = 0; i < this.planes.length; ++i) {
         var plane = this.planes[i];
         plane.paint();
-    }
-};
-Game.game.paintBlocks = function () {
-    for (var i = 0; i < Game.game.blocks.length; ++i) {
-        Game.game.blocks[i].paint();
     }
 };
 Game.game.paintBackground = function () {
@@ -87,24 +102,11 @@ Game.game.addPlane = function (plane) {
     Game.game.elements.planeContainer.appendChild(plane.img);
 };
 
-Game.game.test = function () {
-    for (var i = 0; i < this.blocks.length; ++i) {
-        var block = this.blocks[i];
-        if (block.isInner(0, 0)) {
-            return false;
-        }
-    }
-    return true;
-};
-
-Game.game.getAbsoluteX = function (x) {
-    return Game.game.width * x;
-};
-Game.game.getAbsoluteY = function (y) {
-    return Game.game.height * y;
+Game.game.getLength = function (d) {
+    return Game.game.xi * d;
 };
 Game.game.buildTranslate = function (x, y) {
-    return Game.util.buildTranslate(Game.game.getAbsoluteX(x), Game.game.getAbsoluteY(y));
+    return Game.util.buildTranslate(Game.game.getLength(x), Game.game.getLength(y));
 };
 
 Game.Block = function (left, top, right, bottom) {
@@ -114,13 +116,13 @@ Game.Block = function (left, top, right, bottom) {
     this.bottom = bottom;
     this.img = document.createElement('img');
     this.img.src = Game.const.host + Game.const.imgBlockPath;
-    this.paint();
+    this.resize();
 };
-Game.Block.prototype.paint = function () {
-    this.img.style.left = Game.game.getAbsoluteX(this.left) + 'px';
-    this.img.style.top = Game.game.getAbsoluteY(this.top) + 'px';
-    this.img.style.width = (Game.game.getAbsoluteX(this.right) - Game.game.getAbsoluteX(this.left)) + 'px';
-    this.img.style.height = (Game.game.getAbsoluteY(this.bottom) - Game.game.getAbsoluteY(this.top)) + 'px';
+Game.Block.prototype.resize = function () {
+    this.img.style.left = Game.game.getLength(this.left) + 'px';
+    this.img.style.top = Game.game.getLength(this.top) + 'px';
+    this.img.style.width = Game.game.getLength(this.right - this.left) + 'px';
+    this.img.style.height = Game.game.getLength(this.bottom - this.top) + 'px';
 };
 Game.Block.prototype.isInner = function (x, y) {
     return this.left < x && x < this.right && this.top < y && y < this.bottom;
@@ -134,11 +136,49 @@ Game.Plane = function () {
     this.theta = 0;
     this.img = document.createElement('img');
     this.img.src = Game.const.host + Game.const.imgPlanePath;
-    this.img.style.left = (Game.game.getAbsoluteX(-this.width / 2)) + 'px';
-    this.img.style.top = '0';
-    this.img.style.width = (Game.game.getAbsoluteX(this.width / 2) - Game.game.getAbsoluteX(-this.width / 2)) + 'px';
-    this.img.style.height = (Game.game.getAbsoluteY(this.height / 2) - Game.game.getAbsoluteY(-this.height / 2)) + 'px';
+    this.resize();
+};
+Game.Plane.prototype.move = function (d) {
+    this.x -= d * Math.sin(this.theta);
+    this.y += d * Math.cos(this.theta);
+};
+Game.Plane.prototype.resize = function () {
+    this.img.style.left = (Game.game.getLength(-this.width / 2)) + 'px';
+    this.img.style.top = (Game.game.getLength(-this.height / 2)) + 'px';
+    this.img.style.width = Game.game.getLength(this.width) + 'px';
+    this.img.style.height = Game.game.getLength(this.height) + 'px';
 };
 Game.Plane.prototype.paint = function () {
     Game.util.setTransform(this.img, Game.game.buildTranslate(this.x, this.y) + ' ' + Game.util.buildRotate(this.theta));
+};
+Game.Plane.prototype.test = function (game) {
+    var h2 = this.height / 2, w2 = this.width / 2, c = Math.cos(this.theta), s = Math.sin(this.theta);
+    var h2c = h2 * c, h2s = h2 * s, w2c = w2 * c, w2s = w2 * s;
+    var points = [
+        {
+            x: this.x - h2s,
+            y: this.y + h2c
+        },
+        {
+            x: this.x + h2s + w2c,
+            y: this.y - h2c + w2s
+        },
+        {
+            x: this.x + h2s - w2c,
+            y: this.y - h2c - w2s
+        }
+    ];
+    for (var i = 0; i < 3; ++i) {
+        var point = points[i];
+        if (point.x < 0 || point.x > 1 || point.y < 0 || point.y > game.ym) {
+            return false;
+        }
+        for (var j = 0; j < game.blocks.length; ++j) {
+            var block = game.blocks[j];
+            if (block.isInner(point.x, point.y)) {
+                return false;
+            }
+        }
+    }
+    return true;
 };

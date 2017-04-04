@@ -29,18 +29,18 @@
     z-index: 1000;
 }
 
-.game-turn-left, .game-turn-right {
+.game-turn-left-button, .game-turn-right-button {
     position: absolute;
     top: 50%;
     bottom: 0;
 }
 
-.game-turn-left {
+.game-turn-left-button {
     left: 0;
     right: 50%;
 }
 
-.game-turn-right {
+.game-turn-right-button {
     left: 50%;
     right: 0;
 }
