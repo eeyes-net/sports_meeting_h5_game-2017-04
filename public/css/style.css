@@ -1,0 +1,46 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.game {
+    position: absolute;
+    overflow: hidden;
+}
+
+.game-container {
+    position: relative;
+}
+
+.game-background, .game-block-container, .game-plane-container {
+    left: 0;
+    top: 0;
+    position: absolute;
+}
+
+.game-block-container *, .game-plane-container * {
+    position: absolute;
+}
+
+.game-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+}
+
+.game-turn-left, .game-turn-right {
+    position: absolute;
+    top: 50%;
+    bottom: 0;
+}
+
+.game-turn-left {
+    left: 0;
+    right: 50%;
+}
+
+.game-turn-right {
+    left: 50%;
+    right: 0;
+}
