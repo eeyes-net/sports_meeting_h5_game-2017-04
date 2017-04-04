@@ -22,6 +22,16 @@
     position: absolute;
 }
 
+.game-block-container div {
+    border: 3px solid red;
+    box-sizing: border-box;
+}
+
+.game-block-container img {
+    width: 100%;
+    height: 100%;
+}
+
 .game-wrapper {
     position: absolute;
     width: 100%;

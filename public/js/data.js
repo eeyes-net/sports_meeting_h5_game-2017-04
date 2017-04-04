@@ -1,4 +1,9 @@
 Game.data = {};
+Game.data.server = {
+    base: '/',
+    imgBlockPath: 'images/block.png',
+    imgPlanePath: 'images/plane.png',
+};
 Game.data.blocks = [
     [.5, .5, 1, 1],
     [0, 1.5, .5, 2],
@@ -12,3 +17,7 @@ Game.data.blocks = [
     [0, 9.5, .5, 10],
     [.5, 10.5, 1, 11],
 ];
+Game.data.plane = {
+    width: .1,
+    height: .1
+};

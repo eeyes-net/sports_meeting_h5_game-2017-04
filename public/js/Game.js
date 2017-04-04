@@ -8,15 +8,6 @@
 
 var Game = Game || {};
 
-Game.const = {
-    host: '/sports_meeting_h5_game-2017-04/public/',
-    // host: '/',
-    imgBlockPath: 'images/block.png',
-    imgPlanePath: 'images/plane.png',
-    planeWidth: .1,
-    planeHeight: .1
-};
-
 Game.util = {};
 Game.util.setTransform = function (element, transform) {
     element.style.msTransform = transform; //IE
@@ -95,7 +86,7 @@ Game.game.paintBackground = function () {
 
 Game.game.addBlock = function (block) {
     Game.game.blocks.push(block);
-    Game.game.elements.blockContainer.appendChild(block.img);
+    Game.game.elements.blockContainer.appendChild(block.element);
 };
 Game.game.addPlane = function (plane) {
     Game.game.planes.push(plane);
@@ -114,28 +105,27 @@ Game.Block = function (left, top, right, bottom) {
     this.top = top;
     this.right = right;
     this.bottom = bottom;
-    this.img = document.createElement('img');
-    this.img.src = Game.const.host + Game.const.imgBlockPath;
+    this.element = document.createElement('div');
     this.resize();
 };
 Game.Block.prototype.resize = function () {
-    this.img.style.left = Game.game.getLength(this.left) + 'px';
-    this.img.style.top = Game.game.getLength(this.top) + 'px';
-    this.img.style.width = Game.game.getLength(this.right - this.left) + 'px';
-    this.img.style.height = Game.game.getLength(this.bottom - this.top) + 'px';
+    this.element.style.left = Game.game.getLength(this.left) + 'px';
+    this.element.style.top = Game.game.getLength(this.top) + 'px';
+    this.element.style.width = Game.game.getLength(this.right - this.left) + 'px';
+    this.element.style.height = Game.game.getLength(this.bottom - this.top) + 'px';
 };
 Game.Block.prototype.isInner = function (x, y) {
     return this.left < x && x < this.right && this.top < y && y < this.bottom;
 };
 
-Game.Plane = function () {
-    this.width = Game.const.planeWidth;
-    this.height = Game.const.planeHeight;
+Game.Plane = function (src, width, height) {
+    this.width = width;
+    this.height = height;
     this.x = .5;
     this.y = 0;
     this.theta = 0;
     this.img = document.createElement('img');
-    this.img.src = Game.const.host + Game.const.imgPlanePath;
+    this.img.src = src;
     this.resize();
 };
 Game.Plane.prototype.move = function (d) {
