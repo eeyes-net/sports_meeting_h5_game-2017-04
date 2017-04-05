@@ -1,9 +1,10 @@
 window.addEventListener('load', function () {
+    var game = Game.game;
+
     // 游戏初始化
-    Game.game.init();
+    game.init();
 
     // 放置障碍物
-    var game = Game.game;
     for (var i = 0; i < Game.data.blocks.length; ++i) {
         var blockData = Game.data.blocks[i];
         var blockPos = blockData.pos;
@@ -14,54 +15,90 @@ window.addEventListener('load', function () {
         game.addBlock(block);
     }
 
-    // 游戏逻辑
-    var life = 3;
-    var t000 = Date.now();
-    var t00 = t000;
-    var t0 = t00;
-    var v = 1;
+    // 游戏数据
+    var life = 3; // 可尝试次数（无下限）
+    var t1 = Date.now(); // 第一次游戏的开始时间
+    var t2, // 本次游戏开始时间
+        t0, // dt时间的开始时间
+        t, // dt时间的结束时间
+        dt, // dt时间
+        rate; // 速度倍率
+    var plane; // 主飞机
 
-    var plane = new Game.Plane(Game.data.server.base + Game.data.server.imgPlanePath, Game.data.plane.width, Game.data.plane.height);
-    plane.x = .3;
-    plane.y = .5;
-    plane.theta = 0;
-    v = 1;
-    game.addMyPlane(plane);
-    var infoDiv = document.getElementsByClassName('game-info')[0];
-    var paint = function () {
-        var t = Date.now();
-        var dt = t - t0;
-        if (v < 2) {
-            v += (dt / 5000);
-        } else {
-            v = 2;
+    // 录像
+    var planeRecords = [];
+    var planeRecord, planeRecordTimer;
+
+    // 录像回放
+    var replay = function (t) {
+        for (var i = 0; i < planeRecords.length; ++i) {
+            var planeRecord = planeRecords[i];
+            planeRecord.replay(t);
+            planeRecord.plane.paint();
         }
-        t0 = t;
-        plane.move(dt / 5000 * v);
+    };
+
+    // 初始化数据
+    var planeInit = function () {
+        plane = new Game.Plane(Game.data.server.base + Game.data.server.imgPlanePath, Game.data.plane.width, Game.data.plane.height);
+        game.addMyPlane(plane);
+        plane.x = .5;
+        plane.y = .3;
+        plane.theta = 0;
+        plane.v = .0002;
+        rate = 1;
+        t = t0 = t2 = Date.now();
+        planeRecord = new Game.PlaneRecord(plane);
+        planeRecord.record(0);
+        planeRecordTimer = setInterval(function () {
+            planeRecord.record(t - t2);
+        }, 100);
+    };
+
+    // 调试信息输出的div
+    var infoDiv = document.getElementsByClassName('game-info')[0];
+
+    var paint = function () {
+        t = Date.now();
+        dt = t - t0;
+        if (plane.v < .0004) {
+            plane.v += dt * .0000002;
+        } else {
+            plane.v = .0004;
+        }
+        plane.timePast(dt);
         plane.paint();
-        game.y = plane.y - .2;
+        replay(t - t2);
+        t0 = t;
+
+        game.y = plane.y - .3;
         game.paintBackground();
         // 调试信息
         infoDiv.innerHTML = 'life = ' + (life >= 0 ? life : ('+' + (-life) + 's'))
-            + '<br> time = ' + ((t - t00) / 1000).toString().substr(0, 5)
-            + 's<br> time sum = ' + ((t - t000) / 1000).toString().substr(0, 5)
+            + '<br> time = ' + ((t - t2) / 1000).toString().substr(0, 5)
+            + 's<br> time sum = ' + ((t - t1) / 1000).toString().substr(0, 5)
             + 's<br> x = ' + plane.x.toString().substr(0, 4)
             + ' / 1.00<br> y = ' + plane.y.toString().substr(0, 4)
             + ' / ' + game.ym.toString().substr(0, 4)
             + '<br> theta = ' + (plane.theta * 180 / Math.PI).toString().substr(0, 3)
-            + 'deg<br> v = ' + v.toString().substr(0, 4);
+            + 'deg<br> v = ' + (plane.v * 5000).toString().substr(0, 4);
         // 撞墙检测
         if (!plane.test(game)) {
-            plane.x = .3;
-            plane.y = .5;
-            plane.theta = 0;
-            v = 1;
-            t0 = t00 = Date.now();
             --life;
-        }
-        requestAnimationFrame(paint);
+            sendRecord(planeRecord);
+            planeRecords.push(planeRecord);
+            game.addOtherPlane(planeRecord.plane);
+            gameStart();
+        } else
+            requestAnimationFrame(paint);
     };
-    paint();
+
+    // 开始执行
+    window.gameStart = function () {
+        planeInit();
+        paint();
+    };
+    window.gameStart();
 
     // 屏幕点击事件
     (function () {
@@ -70,7 +107,7 @@ window.addEventListener('load', function () {
         var timer = setInterval(function () {
             var t = Date.now();
             var dt = t - t0;
-            plane.theta += .002 * direction * v * dt;
+            plane.theta += .002 * direction * dt;
             t0 = t;
         }, 16);
         var turnLeftStart = function (e) {

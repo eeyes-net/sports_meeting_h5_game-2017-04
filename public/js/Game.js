@@ -3,7 +3,9 @@
  * 坐标系为计算机中常用的左手系，
  * 使用方形坐标，以宽度为基准1，
  * 在整个游戏区域内，左上角是(0, 0)，右下角是(1, h / w)，
- * Game.game对象中有相对坐标和绝对坐标的转换方法
+ * Game.game对象中有相对坐标和绝对坐标的转换方法。
+ * 游戏中的时间以毫秒为单位
+ * 故速度单位为“宽度基准每毫秒”
  */
 
 var Game = Game || {};
@@ -21,6 +23,20 @@ Game.util.buildTranslate = function (x, y) {
 };
 Game.util.buildRotate = function (theta) {
     return 'rotate(' + theta + 'rad)';
+};
+/**
+ * 线性插值
+ * (x1, y1)与(x2, y2)确定一条直线上
+ * (x, y)在这条直线上，已知x求y。
+ * @param {number} x1
+ * @param {number} y1
+ * @param {number} x2
+ * @param {number} y2
+ * @param {number} x
+ * @returns {number}
+ */
+Game.util.lerp = function (x1, y1, x2, y2, x) {
+    return (y2 - y1) / (x2 - x1) * (x - x1) + y1;
 };
 
 Game.game = {};
@@ -138,6 +154,7 @@ Game.Plane = function (src, width, height) {
     this.x = .5;
     this.y = 0;
     this.theta = 0;
+    this.v = 0;
     this.img = document.createElement('img');
     this.img.src = src;
     this.resize();
@@ -145,6 +162,9 @@ Game.Plane = function (src, width, height) {
 Game.Plane.prototype.move = function (d) {
     this.x -= d * Math.sin(this.theta);
     this.y += d * Math.cos(this.theta);
+};
+Game.Plane.prototype.timePast = function (t) {
+    this.move(this.v * t);
 };
 Game.Plane.prototype.resize = function () {
     this.img.style.left = (Game.game.getLength(-this.width / 2)) + 'px';
@@ -185,4 +205,66 @@ Game.Plane.prototype.test = function (game) {
         }
     }
     return true;
+};
+
+Game.PlaneRecord = function (plane) {
+    this.plane = plane;
+    this.records = [];
+};
+Game.PlaneRecord.prototype.record = function (t) {
+    this.records.push({
+        t: t,
+        x: this.plane.x,
+        y: this.plane.y,
+        theta: this.plane.theta
+    });
+};
+Game.PlaneRecord.prototype.replay = function (t) {
+    var record, record1;
+    if (this.records.length === 1) {
+        record = this.records[0];
+        this.plane.x = record.x;
+        this.plane.y = record.y;
+        this.plane.theta = record.theta;
+        this.plane.v = record.v;
+    } else if (t >= this.records[this.records.length - 1].t) {
+        record = this.records[this.records.length - 1];
+        this.plane.x = record.x;
+        this.plane.y = record.y;
+        this.plane.theta = record.theta;
+        this.plane.v = record.v;
+    } else {
+        for (var i = 1; i < this.records.length; ++i) {
+            record1 = this.records[i];
+            if (t < record1.t) {
+                record = this.records[i - 1];
+                break;
+            }
+        }
+        this.plane.x = Game.util.lerp(record.t, record.x, record1.t, record1.x, t);
+        this.plane.y = Game.util.lerp(record.t, record.y, record1.t, record1.y, t);
+        this.plane.theta = Game.util.lerp(record.t, record.theta, record1.t, record1.theta, t);
+        this.plane.v = record.v;
+    }
+};
+/**
+ * 转换为ArrayBuffer，可以用于保存
+ * @return {ArrayBuffer}
+ */
+Game.PlaneRecord.prototype.toArrayBuffer = function () {
+    var arrayBuffer = new ArrayBuffer(this.records.length * 16);
+    var dv = new DataView(arrayBuffer);
+    var byteOffset = 0;
+    for (var i = 0; i < this.records.length; ++i) {
+        var record = this.records[i];
+        dv.setUint32(byteOffset, record.t);
+        byteOffset += 4;
+        dv.setFloat32(byteOffset, record.x);
+        byteOffset += 4;
+        dv.setFloat32(byteOffset, record.y);
+        byteOffset += 4;
+        dv.setFloat32(byteOffset, record.theta);
+        byteOffset += 4;
+    }
+    return arrayBuffer;
 };

@@ -3,79 +3,17 @@
     padding: 0;
 }
 
-.game {
+.start, .finish {
+    display: none;
     position: absolute;
-    overflow: hidden;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-.game-container {
-    position: relative;
-}
-
-.game-background, .game-block-container, .game-plane-container {
     left: 0;
     top: 0;
-    position: absolute;
-}
-
-.game-background-image {
-    display: block;
     width: 100%;
-}
-
-.game-background-wrapper {
-    position: absolute;
-    width: 100%;
-    background-color: rgba(0, 0, 0, .5);
-}
-
-.game-block-container > *, .game-plane-container > * {
-    position: absolute;
-}
-
-.game-block-container > div > p {
-    font-size: 30px;
+    height: 100%;
+    padding: 30% 10% 0;
     color: #fff;
-    /*text-shadow: 2px 2px 2px #000, -2px 2px 2px #000, -2px -2px 2px #000, 2px -2px 2px #000;*/
-}
-
-.game-block-container div {
-    border: 5px solid red;
+    background-color: rgba(0, 0, 0, .7);
+    font-size: 20px;
     box-sizing: border-box;
-}
-
-.game-block-container img {
-    width: 100%;
-    height: 100%;
-}
-
-.game-other-plane-container {
-    opacity: .3;
-}
-
-.game-wrapper {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: 1000;
-}
-
-.game-turn-left-button, .game-turn-right-button {
-    position: absolute;
-    top: 50%;
-    bottom: 0;
-}
-
-.game-turn-left-button {
-    left: 0;
-    right: 50%;
-}
-
-.game-turn-right-button {
-    left: 50%;
-    right: 0;
+    text-align: center;
 }
