@@ -6,10 +6,11 @@ window.addEventListener('load', function () {
     var game = Game.game;
     for (var i = 0; i < Game.data.blocks.length; ++i) {
         var blockData = Game.data.blocks[i];
-        var block = new Game.Block(blockData[0], blockData[1], blockData[2], blockData[3]);
-        var img = document.createElement('img');
-        img.src = Game.data.server.base + Game.data.server.imgBlockPath;
-        block.element.appendChild(img);
+        var blockPos = blockData.pos;
+        var block = new Game.Block(blockPos[0], blockPos[1], blockPos[2], blockPos[3]);
+        var p = document.createElement('p');
+        p.textContent = blockData.text;
+        block.element.appendChild(p);
         game.addBlock(block);
     }
 
@@ -25,15 +26,15 @@ window.addEventListener('load', function () {
     plane.y = .5;
     plane.theta = 0;
     v = 1;
-    game.addPlane(plane);
+    game.addMyPlane(plane);
     var infoDiv = document.getElementsByClassName('game-info')[0];
     var paint = function () {
         var t = Date.now();
         var dt = t - t0;
-        if (v < 3) {
+        if (v < 2) {
             v += (dt / 5000);
         } else {
-            v = 3;
+            v = 2;
         }
         t0 = t;
         plane.move(dt / 5000 * v);
@@ -41,7 +42,7 @@ window.addEventListener('load', function () {
         game.y = plane.y - .2;
         game.paintBackground();
         // 调试信息
-        infoDiv.innerHTML = 'life = ' + life
+        infoDiv.innerHTML = 'life = ' + (life >= 0 ? life : ('+' + (-life) + 's'))
             + '<br> time = ' + ((t - t00) / 1000).toString().substr(0, 5)
             + 's<br> time sum = ' + ((t - t000) / 1000).toString().substr(0, 5)
             + 's<br> x = ' + plane.x.toString().substr(0, 4)
@@ -57,17 +58,21 @@ window.addEventListener('load', function () {
             v = 1;
             t0 = t00 = Date.now();
             --life;
-        } else
-            requestAnimationFrame(paint);
+        }
+        requestAnimationFrame(paint);
     };
     paint();
 
     // 屏幕点击事件
     (function () {
         var direction = 0;
+        var t0 = Date.now();
         var timer = setInterval(function () {
-            plane.theta += .01 * direction * v;
-        });
+            var t = Date.now();
+            var dt = t - t0;
+            plane.theta += .002 * direction * v * dt;
+            t0 = t;
+        }, 16);
         var turnLeftStart = function (e) {
             e.preventDefault();
             direction = 1;
@@ -90,5 +95,19 @@ window.addEventListener('load', function () {
         Game.game.elements.turnRightButton.addEventListener('mousedown', turnRightStart);
         Game.game.elements.turnLeftButton.addEventListener('mouseup', turnEnd);
         Game.game.elements.turnRightButton.addEventListener('mouseup', turnEnd);
+        document.addEventListener('keydown', function (e) {
+            var keyCode = e.keyCode;
+            if (keyCode === 37) {
+                turnLeftStart(e);
+            } else if (keyCode === 39) {
+                turnRightStart(e);
+            }
+        });
+        document.addEventListener('keyup', function (e) {
+            var keyCode = e.keyCode;
+            if (keyCode === 37 || keyCode === 39) {
+                turnEnd(e);
+            }
+        });
     })();
 });

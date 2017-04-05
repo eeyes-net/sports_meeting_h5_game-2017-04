@@ -27,7 +27,8 @@ Game.game = {};
 Game.game.init = function () {
     Game.game.getElements();
     Game.game.blocks = [];
-    Game.game.planes = [];
+    Game.game.myPlanes = [];
+    Game.game.otherPlanes = [];
     window.addEventListener('resize', Game.game.resize);
     Game.game.resize();
     Game.game.y = 0;
@@ -38,9 +39,11 @@ Game.game.getElements = function () {
     Game.game.elements.base = document.getElementsByClassName('game')[0];
     Game.game.elements.container = document.getElementsByClassName('game-container')[0];
     Game.game.elements.background = document.getElementsByClassName('game-background')[0];
-    Game.game.elements.backgroundImage = document.getElementsByClassName('game-background-image')[0];
+    Game.game.elements.backgroundImages = document.getElementsByClassName('game-background-image');
+    Game.game.elements.backgroundWrapper = document.getElementsByClassName('game-background-wrapper')[0];
     Game.game.elements.blockContainer = document.getElementsByClassName('game-block-container')[0];
-    Game.game.elements.planeContainer = document.getElementsByClassName('game-plane-container')[0];
+    Game.game.elements.otherPlaneContainer = document.getElementsByClassName('game-other-plane-container')[0];
+    Game.game.elements.myPlaneContainer = document.getElementsByClassName('game-my-plane-container')[0];
     Game.game.elements.wrapper = document.getElementsByClassName('game-wrapper')[0];
     Game.game.elements.turnLeftButton = document.getElementsByClassName('game-turn-left-button')[0];
     Game.game.elements.turnRightButton = document.getElementsByClassName('game-turn-right-button')[0];
@@ -48,19 +51,20 @@ Game.game.getElements = function () {
 Game.game.resize = function () {
     Game.game.elements.base.style.width = window.innerWidth + 'px';
     Game.game.elements.base.style.height = window.innerHeight + 'px';
-    Game.game.elements.backgroundImage.style.width = window.innerWidth + 'px';
     /**
      * 单位长度
      * @type {number}
      */
-    Game.game.xi = Game.game.elements.backgroundImage.clientWidth;
+    Game.game.xi = window.innerWidth;
+    Game.game.elements.background.style.width = Game.game.xi + 'px';
     /**
      * 纵向最大高度
      * @type {number}
      */
-    Game.game.ym = Game.game.elements.backgroundImage.clientHeight / Game.game.elements.backgroundImage.clientWidth;
+    Game.game.ym = Game.game.elements.background.clientHeight / Game.game.elements.background.clientWidth;
     Game.game.resizeBlocks();
     Game.game.resizePlanes();
+    Game.game.resizeBackground();
 };
 Game.game.resizeBlocks = function () {
     for (var i = 0; i < Game.game.blocks.length; ++i) {
@@ -68,15 +72,21 @@ Game.game.resizeBlocks = function () {
     }
 };
 Game.game.resizePlanes = function () {
-    for (var i = 0; i < Game.game.planes.length; ++i) {
-        Game.game.planes[i].resize();
+    for (var i = 0; i < Game.game.myPlanes.length; ++i) {
+        Game.game.myPlanes[i].resize();
     }
+    for (var i = 0; i < Game.game.otherPlanes.length; ++i) {
+        Game.game.otherPlanes[i].resize();
+    }
+};
+Game.game.resizeBackground = function () {
+    Game.game.elements.backgroundWrapper.style.height = Game.game.getLength(Game.game.ym) + 'px';
 };
 
 Game.game.paint = function () {
     var i;
-    for (i = 0; i < this.planes.length; ++i) {
-        var plane = this.planes[i];
+    for (i = 0; i < this.myPlanes.length; ++i) {
+        var plane = this.myPlanes[i];
         plane.paint();
     }
 };
@@ -88,9 +98,13 @@ Game.game.addBlock = function (block) {
     Game.game.blocks.push(block);
     Game.game.elements.blockContainer.appendChild(block.element);
 };
-Game.game.addPlane = function (plane) {
-    Game.game.planes.push(plane);
-    Game.game.elements.planeContainer.appendChild(plane.img);
+Game.game.addMyPlane = function (plane) {
+    Game.game.myPlanes.push(plane);
+    Game.game.elements.myPlaneContainer.appendChild(plane.img);
+};
+Game.game.addOtherPlane = function (plane) {
+    Game.game.otherPlanes.push(plane);
+    Game.game.elements.otherPlaneContainer.appendChild(plane.img);
 };
 
 Game.game.getLength = function (d) {
