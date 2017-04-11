@@ -1,0 +1,42 @@
+CREATE TABLE `game_record` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `data` BLOB NOT NULL COMMENT '游戏操作记录',
+  `data_md5` CHAR(32) NOT NULL COMMENT 'data的md5',
+  `ip` CHAR(20) NOT NULL COMMENT '来源IP',
+  `user_agent` TEXT NOT NULL COMMENT '浏览器UA',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX (`data_md5`),
+  INDEX (`ip`)
+) ENGINE = MyISAM CHARSET=utf8 COLLATE utf8_general_ci COMMENT '游戏记录';
+
+CREATE TABLE `vote_count` (
+  `id` INT NOT NULL AUTO_INCREMENT COMMENT '书院id',
+  `college_name` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '书院名',
+  `count` INT NOT NULL DEFAULT '0' COMMENT '投票总数',
+  `updated_at` TIMESTAMP on update CURRENT_TIMESTAMP() NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE = MyISAM CHARSET=utf8 COLLATE utf8_general_ci COMMENT '投票总数';
+
+CREATE TABLE `vote_record` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `game_record_id` VARCHAR(200) NOT NULL COMMENT '游戏记录id',
+  `college_id` VARCHAR(200) NOT NULL COMMENT '书院id',
+  `count` INT NOT NULL DEFAULT '0' COMMENT '投票票数',
+  `ip` VARCHAR(255) NOT NULL COMMENT '来源IP',
+  `user_agent` VARCHAR(255) NOT NULL COMMENT '浏览器UA',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX (`game_record_id`),
+  INDEX (`college_id`)
+) ENGINE = MyISAM CHARSET=utf8 COLLATE utf8_general_ci COMMENT '投票记录';
+
+INSERT INTO `vote_count` (`id`, `college_name`, `count`) VALUES
+  ('1', '彭康书院', '0'),
+  ('2', '仲英书院', '0'),
+  ('3', '南洋书院', '0'),
+  ('4', '文治书院', '0'),
+  ('5', '崇实书院', '0'),
+  ('6', '宗濂书院', '0'),
+  ('7', '励志书院', '0'),
+  ('8', '启德书院', '0');
