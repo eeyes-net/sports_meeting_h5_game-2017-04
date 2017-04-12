@@ -26,15 +26,39 @@ window.addEventListener('load', function () {
     var plane; // 主飞机
 
     // 录像
-    var planeRecords = [];
+    var planeRecordSet = new Game.PlaneRecordSet(Game.data.server.base + Game.data.server.imgPlanePath, Game.data.plane.width, Game.data.plane.height);
     var planeRecord, planeRecordTimer;
 
-    // 录像回放
-    var replay = function (t) {
-        for (var i = 0; i < planeRecords.length; ++i) {
-            var planeRecord = planeRecords[i];
-            planeRecord.replay(t);
-            planeRecord.plane.paint();
+    /**
+     * 获取其他飞机的轨迹
+     */
+    var getGameRecord = function () {
+        var oReq = new XMLHttpRequest;
+        oReq.open('GET', Game.data.server.base + Game.data.server.getGameRecordURL);
+        oReq.responseType = 'arraybuffer';
+        oReq.onload = function () {
+            var arrayBuffer = oReq.response;
+            if (arrayBuffer) {
+                planeRecordSet.fromArrayBuffer(arrayBuffer);
+            }
+        };
+        oReq.send(null);
+    };
+
+    /**
+     * 发送飞机轨迹
+     * @param {Game.PlaneRecord} planeRecord
+     */
+    var postGameRecord = function (planeRecord) {
+        var xhr = new XMLHttpRequest;
+        xhr.open('POST', Game.data.server.base + Game.data.server.postGameRecordURL);
+        xhr.send(planeRecord.toArrayBuffer());
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    console.log('send ok');
+                }
+            }
         }
     };
 
@@ -68,7 +92,7 @@ window.addEventListener('load', function () {
         }
         plane.timePast(dt);
         plane.paint();
-        replay(t - t2);
+        planeRecordSet.replay(t - t2);
         t0 = t;
 
         game.y = plane.y - .3;
@@ -85,15 +109,15 @@ window.addEventListener('load', function () {
         // 撞墙检测
         if (!plane.test(game)) {
             --life;
-            sendRecord(planeRecord);
-            planeRecords.push(planeRecord);
-            game.addOtherPlane(planeRecord.plane);
+            postGameRecord(planeRecord);
+            planeRecordSet.push(planeRecord);
             gameStart();
         } else
             requestAnimationFrame(paint);
     };
 
     // 开始执行
+    getGameRecord();
     window.gameStart = function () {
         planeInit();
         paint();
@@ -107,7 +131,7 @@ window.addEventListener('load', function () {
         var timer = setInterval(function () {
             var t = Date.now();
             var dt = t - t0;
-            plane.theta += .002 * direction * dt;
+            plane.theta += plane.v * 10 * direction * dt;
             t0 = t;
         }, 16);
         var turnLeftStart = function (e) {
@@ -147,4 +171,11 @@ window.addEventListener('load', function () {
             }
         });
     })();
+
+    // 调整字体大小
+    var blockFontSize = function () {
+        document.getElementsByClassName('game-block-container')[0].style.fontSize = window.innerWidth / 22 + 'px';
+    };
+    window.addEventListener('resize', blockFontSize);
+    blockFontSize();
 });

@@ -209,10 +209,10 @@ Game.Plane.prototype.test = function (game) {
 
 Game.PlaneRecord = function (plane) {
     this.plane = plane;
-    this.records = [];
+    this.status = [];
 };
 Game.PlaneRecord.prototype.record = function (t) {
-    this.records.push({
+    this.status.push({
         t: t,
         x: this.plane.x,
         y: this.plane.y,
@@ -221,23 +221,23 @@ Game.PlaneRecord.prototype.record = function (t) {
 };
 Game.PlaneRecord.prototype.replay = function (t) {
     var record, record1;
-    if (this.records.length === 1) {
-        record = this.records[0];
+    if (this.status.length === 1) {
+        record = this.status[0];
         this.plane.x = record.x;
         this.plane.y = record.y;
         this.plane.theta = record.theta;
         this.plane.v = record.v;
-    } else if (t >= this.records[this.records.length - 1].t) {
-        record = this.records[this.records.length - 1];
+    } else if (t >= this.status[this.status.length - 1].t) {
+        record = this.status[this.status.length - 1];
         this.plane.x = record.x;
         this.plane.y = record.y;
         this.plane.theta = record.theta;
         this.plane.v = record.v;
     } else {
-        for (var i = 1; i < this.records.length; ++i) {
-            record1 = this.records[i];
+        for (var i = 1; i < this.status.length; ++i) {
+            record1 = this.status[i];
             if (t < record1.t) {
-                record = this.records[i - 1];
+                record = this.status[i - 1];
                 break;
             }
         }
@@ -252,19 +252,66 @@ Game.PlaneRecord.prototype.replay = function (t) {
  * @return {ArrayBuffer}
  */
 Game.PlaneRecord.prototype.toArrayBuffer = function () {
-    var arrayBuffer = new ArrayBuffer(this.records.length * 16);
+    var arrayBuffer = new ArrayBuffer(this.status.length * 16);
     var dv = new DataView(arrayBuffer);
     var byteOffset = 0;
-    for (var i = 0; i < this.records.length; ++i) {
-        var record = this.records[i];
-        dv.setUint32(byteOffset, record.t);
+    for (var i = 0; i < this.status.length; ++i) {
+        var state = this.status[i];
+        dv.setUint32(byteOffset, state.t);
         byteOffset += 4;
-        dv.setFloat32(byteOffset, record.x);
+        dv.setFloat32(byteOffset, state.x);
         byteOffset += 4;
-        dv.setFloat32(byteOffset, record.y);
+        dv.setFloat32(byteOffset, state.y);
         byteOffset += 4;
-        dv.setFloat32(byteOffset, record.theta);
+        dv.setFloat32(byteOffset, state.theta);
         byteOffset += 4;
     }
     return arrayBuffer;
+};
+Game.PlaneRecord.prototype.fromArrayBuffer = function (arrayBuffer) {
+    var dv = new DataView(arrayBuffer);
+    var byteOffset = 0;
+    while (byteOffset < arrayBuffer.byteLength) {
+        var state = {};
+        state.t = dv.getUint32(byteOffset);
+        byteOffset += 4;
+        state.x = dv.getFloat32(byteOffset);
+        byteOffset += 4;
+        state.y = dv.getFloat32(byteOffset);
+        byteOffset += 4;
+        state.theta = dv.getFloat32(byteOffset);
+        byteOffset += 4;
+        this.status.push(state)
+    }
+};
+
+Game.PlaneRecordSet = function (src, width, height) {
+    this.src = src;
+    this.width = width;
+    this.height = height;
+    this.records = [];
+};
+Game.PlaneRecordSet.prototype.push = function (record) {
+    this.records.push(record);
+    Game.game.addOtherPlane(record.plane);
+};
+Game.PlaneRecordSet.prototype.replay = function (t) {
+    for (var i = 0; i < this.records.length; ++i) {
+        var planeRecord = this.records[i];
+        planeRecord.replay(t);
+        planeRecord.plane.paint();
+    }
+};
+Game.PlaneRecordSet.prototype.fromArrayBuffer = function (arrayBuffer) {
+    var dv = new DataView(arrayBuffer);
+    var byteOffset = 0;
+    while (byteOffset < arrayBuffer.byteLength) {
+        var byteCount = dv.getUint32(byteOffset);
+        byteOffset += 4;
+        var plane = new Game.Plane(this.src, this.width, this.height);
+        var record = new Game.PlaneRecord(plane);
+        record.fromArrayBuffer(arrayBuffer.slice(byteOffset, byteOffset + byteCount));
+        byteOffset += byteCount;
+        this.push(record);
+    }
 };

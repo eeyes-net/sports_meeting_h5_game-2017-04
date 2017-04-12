@@ -16,18 +16,21 @@ switch ($_GET['action']) {
     case 'get_game_record':
         include '../app/game_record.php';
         rawReturn(get_game_record());
-        return;
+        break;
     case 'post_game_record':
         include '../app/game_record.php';
         jsonReturn(post_game_record());
-        return;
+        break;
     case 'get_vote':
         include '../app/vote.php';
         jsonReturn(get_vote());
-        return;
+        break;
     case 'post_vote':
         include '../app/vote.php';
         jsonReturn(post_vote());
-        return;
+        break;
+    default:
+        readfile('index.html');
+        break;
 }
-readfile('index.html');
+connect_db(true);
