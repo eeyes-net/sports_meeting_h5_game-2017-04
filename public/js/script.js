@@ -155,8 +155,6 @@ window.addEventListener('load', function () {
         }
         return score;
     };
-    // 调试信息输出的div
-    var infoDiv = document.getElementsByClassName('game-info')[0];
     /**
      * 重绘
      * 如果未撞墙则继续requestAnimationFrame
@@ -176,15 +174,6 @@ window.addEventListener('load', function () {
         game.y = plane.y - .3;
         game.paintBackground();
 
-        // 输出调试信息
-        infoDiv.innerHTML = 'life = ' + (life >= 0 ? life : ('+' + (-life) + 's'))
-            + '<br> time = ' + ((t - t2) / 1000).toString().substr(0, 5)
-            + 's<br> time sum = ' + ((t - t1) / 1000).toString().substr(0, 5)
-            + 's<br> x = ' + plane.x.toString().substr(0, 4)
-            + ' / 1.00<br> y = ' + plane.y.toString().substr(0, 4)
-            + ' / ' + game.ym.toString().substr(0, 4)
-            + '<br> theta = ' + (plane.theta * 180 / Math.PI).toString().substr(0, 3)
-            + 'deg<br> v = ' + (plane.v * 10000).toString().substr(0, 4);
         // 撞墙检测
         var test = plane.test();
         switch (test) {
