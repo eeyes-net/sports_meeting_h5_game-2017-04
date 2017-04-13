@@ -175,7 +175,13 @@ Game.Plane.prototype.resize = function () {
 Game.Plane.prototype.paint = function () {
     Game.util.setTransform(this.img, Game.game.buildTranslate(this.x, this.y) + ' ' + Game.util.buildRotate(this.theta));
 };
-Game.Plane.prototype.test = function (game) {
+/**
+ * 测试飞机是否与障碍物相撞
+ * @return {number}  0 - 正常状态
+ *                  -1 - 撞墙
+ *                   1 - 全部完成。
+ */
+Game.Plane.prototype.test = function () {
     var h2 = this.height / 2, w2 = this.width / 2, c = Math.cos(this.theta), s = Math.sin(this.theta);
     var h2c = h2 * c, h2s = h2 * s, w2c = w2 * c, w2s = w2 * s;
     var points = [
@@ -194,17 +200,20 @@ Game.Plane.prototype.test = function (game) {
     ];
     for (var i = 0; i < 3; ++i) {
         var point = points[i];
-        if (point.x < 0 || point.x > 1 || point.y < 0 || point.y > game.ym) {
-            return false;
+        if (point.x < 0 || point.x > 1 || point.y < 0) {
+            return -1;
         }
-        for (var j = 0; j < game.blocks.length; ++j) {
-            var block = game.blocks[j];
+        for (var j = 0; j < Game.game.blocks.length; ++j) {
+            var block = Game.game.blocks[j];
             if (block.isInner(point.x, point.y)) {
-                return false;
+                return -1;
             }
         }
+        if (point.y > Game.game.ym) {
+            return 1;
+        }
     }
-    return true;
+    return 0;
 };
 
 Game.PlaneRecord = function (plane) {

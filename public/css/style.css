@@ -1,19 +1,99 @@
 * {
     margin: 0;
     padding: 0;
+    user-select: none;
 }
 
-.start, .finish {
+html {
+    background: url(../images/bg/8.jpg);
+}
+
+.tips-wrapper {
     display: none;
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    padding: 30% 10% 0;
     color: #fff;
-    background-color: rgba(0, 0, 0, .7);
-    font-size: 20px;
-    box-sizing: border-box;
+    background-color: rgba(0, 0, 0, .9);
+    font-size: 0;
     text-align: center;
+    z-index: 1000;
+}
+
+.tips-helper {
+    display: inline-block;
+    width: 0;
+    height: 100%;
+    vertical-align: middle;
+}
+
+.tips-container {
+    display: inline-block;
+    font-size: 18px;
+    vertical-align: middle;
+}
+
+.start, .finish, .vote {
+    display: none;
+}
+
+.tips-container h1 {
+    font-weight: normal;
+    font-size: 1.5em;
+    line-height: 2;
+}
+
+.tips-container p {
+    line-height: 2;
+}
+
+.tips-container p.sub-text {
+    color: #999;
+    font-size: .8em;
+}
+
+.tips-container button {
+    margin-top: 1em;
+    padding: .7em 0;
+    color: #fff;
+    width: 15em;
+    background-color: transparent;
+    font-size: 14px;
+    border: 5px solid #fff;
+    border-radius: .5em;
+}
+
+.tips-container button.sub-button {
+    padding: .5em 0;
+    width: 11em;
+    color: #999;
+    font-size: .8em;
+    border: 3px solid #999;
+    border-radius: .3em;
+}
+
+.college-container {
+    padding: 12px 0;
+    background-color: rgba(255,255,255,.2);
+    font-size: 0;
+}
+
+.college-section {
+    display: inline-block;
+    max-width: 25%;
+    box-sizing: border-box;
+    font-size: 12px;
+    vertical-align: bottom;
+}
+
+.college-logo-container {
+    margin: 0 auto;
+    width: 50%;
+    overflow: hidden;
+}
+
+.college-logo-container img {
+    width: 100%;
 }

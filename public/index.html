@@ -10,19 +10,21 @@
     <link rel="stylesheet" href="css/game.css">
 </head>
 <body>
-    <img class="wx-share-image" style="position: absolute; left: 0; top: 0; width: 1px; height: 1px; z-index: -2147483648;" src="" alt="微信分享图片">
+    <div style="display: none;">
+        <img src="" alt="微信分享图片">
+    </div>
 
     <div class="game">
         <div class="game-container">
             <div class="game-background">
-                <img class="game-background-image" src="./images/1.jpg" alt="背景图片1">
-                <img class="game-background-image" src="./images/2.jpg" alt="背景图片2">
-                <img class="game-background-image" src="./images/3.jpg" alt="背景图片3">
-                <img class="game-background-image" src="./images/4.jpg" alt="背景图片4">
-                <img class="game-background-image" src="./images/5.jpg" alt="背景图片5">
-                <img class="game-background-image" src="./images/6.jpg" alt="背景图片6">
-                <img class="game-background-image" src="./images/7.jpg" alt="背景图片7">
-                <img class="game-background-image" src="./images/8.jpg" alt="背景图片8">
+                <img class="game-background-image" src="images/bg/1.jpg" alt="背景图片1">
+                <img class="game-background-image" src="images/bg/2.jpg" alt="背景图片2">
+                <img class="game-background-image" src="images/bg/3.jpg" alt="背景图片3">
+                <img class="game-background-image" src="images/bg/4.jpg" alt="背景图片4">
+                <img class="game-background-image" src="images/bg/5.jpg" alt="背景图片5">
+                <img class="game-background-image" src="images/bg/6.jpg" alt="背景图片6">
+                <img class="game-background-image" src="images/bg/7.jpg" alt="背景图片7">
+                <img class="game-background-image" src="images/bg/8.jpg" alt="背景图片8">
             </div>
             <div class="game-background-wrapper"></div>
             <div class="game-block-container"></div>
@@ -32,24 +34,125 @@
         <div class="game-wrapper">
             <div class="game-turn-left-button"></div>
             <div class="game-turn-right-button"></div>
-            <div class="game-info" style="position: absolute; left: 0; top: 0; background-color: rgba(255, 255, 255, .5)"></div>
+            <div class="game-info" style="position: absolute; left: 0; top: 0; padding: 1em; background-color: rgba(255, 255, 255, .5);"></div>
         </div>
     </div>
 
-    <div class="start">
-        <p class="start-paragraph">触碰屏幕的左右下角控制飞机的方向。。。<br>不要让飞机碰到红色边框呦</p>
-        <button class="start-button">开始游戏</button>
-    </div>
-
-    <div class="finish">
-        <h1 class="finish-title">你坠毁了！！</h1>
-        <p class="finish-paragraph">你总共飞行了<span class="finish-distance"></span>米</p>
-        <p class="finish-paragraph">可以为你的书院加<span class="finish-score"></span>分</p>
-        <button class="finish-button">开始游戏</button>
-    </div>
-
-    <div class="wx-share">
-
+    <div class="tips-wrapper">
+        <div class="tips-helper"></div>
+        <div class="tips-container">
+            <div class="start">
+                <h1>游戏说明</h1>
+                <p>触碰屏幕的左下角右下角控制飞机的方向</p>
+                <p>不要让飞机碰到红色边框呦～</p>
+                <p class="sub-text">(半透明的飞机是其他玩家的游戏记录)</p>
+                <p>完成游戏后可以给为自己的书院加油哦</p>
+                <p class="sub-text">不想游戏也可以直接投票</p>
+                <p class="sub-text">飞行越远，票数越多哦</p>
+                <p class="sub-text">(投票有时间限制，每5分钟才可以投一次)</p>
+                <p>
+                    <button class="start-button">开始游戏</button>
+                </p>
+                <p>
+                    <button class="vote-button sub-button">直接投票</button>
+                </p>
+            </div>
+            <div class="finish">
+                <h1 class="finish-title">你坠毁了！！</h1>
+                <p>你总共飞行了<span class="finish-time"></span>秒</p>
+                <p>飞行了总路程的<span class="finish-distance"></span>%</p>
+                <p>可以为你的书院加<span class="finish-score"></span>分</p>
+                <p class="sub-text">(投票有时间限制，每5分钟才可以投一次)</p>
+                <p>
+                    <button class="vote-button">为书院投票</button>
+                </p>
+                <p>
+                    <button class="start-button sub-button">重新开始</button>
+                </p>
+            </div>
+            <div class="vote">
+                <p>选择你的书院，为之加分吧</p>
+                <p class="sub-text">(投票有时间限制，每5分钟才可以投一次，不能刷票哦)</p>
+                <p class="vote-alert"></p>
+                <ul class="college-container">
+                    <li class="college-section" data-id="1">
+                        <div class="college-logo-container">
+                            <img src="images/college/1.png">
+                        </div>
+                        <div class="college-detail">
+                            <p class="college-name">彭康书院</p>
+                            <p class="college-vote-count" id="college-1">0</p>
+                        </div>
+                    </li>
+                    <li class="college-section" data-id="2">
+                        <div class="college-logo-container">
+                            <img src="images/college/2.png">
+                        </div>
+                        <div class="college-detail">
+                            <p class="college-name">仲英书院</p>
+                            <p class="college-vote-count" id="college-2">0</p>
+                        </div>
+                    </li>
+                    <li class="college-section" data-id="3">
+                        <div class="college-logo-container">
+                            <img src="images/college/3.png">
+                        </div>
+                        <div class="college-detail">
+                            <p class="college-name">南洋书院</p>
+                            <p class="college-vote-count" id="college-3">0</p>
+                        </div>
+                    </li>
+                    <li class="college-section" data-id="4">
+                        <div class="college-logo-container">
+                            <img src="images/college/4.png">
+                        </div>
+                        <div class="college-detail">
+                            <p class="college-name">文治书院</p>
+                            <p class="college-vote-count" id="college-4">0</p>
+                        </div>
+                    </li>
+                    <li class="college-section" data-id="5">
+                        <div class="college-logo-container">
+                            <img src="images/college/5.png">
+                        </div>
+                        <div class="college-detail">
+                            <p class="college-name">崇实书院</p>
+                            <p class="college-vote-count" id="college-5">0</p>
+                        </div>
+                    </li>
+                    <li class="college-section" data-id="6">
+                        <div class="college-logo-container">
+                            <img src="images/college/6.png">
+                        </div>
+                        <div class="college-detail">
+                            <p class="college-name">宗濂书院</p>
+                            <p class="college-vote-count" id="college-6">0</p>
+                        </div>
+                    </li>
+                    <li class="college-section" data-id="7">
+                        <div class="college-logo-container">
+                            <img src="images/college/7.png">
+                        </div>
+                        <div class="college-detail">
+                            <p class="college-name">励志书院</p>
+                            <p class="college-vote-count" id="college-7">0</p>
+                        </div>
+                    </li>
+                    <li class="college-section" data-id="8">
+                        <div class="college-logo-container">
+                            <img src="images/college/8.png">
+                        </div>
+                        <div class="college-detail">
+                            <p class="college-name">启德书院</p>
+                            <p class="college-vote-count" id="college-8">0</p>
+                        </div>
+                    </li>
+                </ul>
+                <p>
+                    <button class="start-button">重新开始游戏</button>
+                </p>
+            </div>
+        </div>
     </div>
 
     <!--<audio src="./media/double_face.mp3" style="display: none;" autoplay="autoplay" loop="loop"></audio>-->

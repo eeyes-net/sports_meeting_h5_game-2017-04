@@ -23,5 +23,10 @@ Game.data.blocks = [
 ];
 Game.data.plane = {
     width: .1,
-    height: .1
+    height: .1,
+    turnSpeed: 10,
+    minSpeed: .0002,
+    maxSpeed: .0006,
+    accelerateTime: 10000
 };
+Game.data.score = [70, 90, 99];
