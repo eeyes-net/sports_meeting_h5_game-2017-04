@@ -23,6 +23,7 @@ window.addEventListener('load', function () {
         dt, // dt时间
         rate; // 速度倍率
     var plane; // 主飞机
+    var score = 1; // 分数
     // 游戏过程记录
     var planeRecordSet = new Game.PlaneRecordSet(Game.data.server.base + Game.data.server.imgPlanePath, Game.data.plane.width, Game.data.plane.height);
     var planeRecord, planeRecordTimer;
@@ -200,9 +201,10 @@ window.addEventListener('load', function () {
                     distance = 100;
                     title = '恭喜你成功完成';
                 }
-                var score = calcScore(distance);
+                score = calcScore(distance);
                 setFinishText(title, time, distance, score);
                 showFinish();
+                plane = void 0;
                 break;
             case 0:
                 requestAnimationFrame(paint);
@@ -212,6 +214,13 @@ window.addEventListener('load', function () {
                 break;
         }
     };
+
+    // 退出页面提交游戏记录
+    window.addEventListener("beforeunload", function () {
+        if (plane) {
+            finishGame();
+        }
+    }, false);
 
     // 屏幕点击事件
     var turnLeftStart = function (e) {
@@ -300,7 +309,19 @@ window.addEventListener('load', function () {
         document.getElementsByClassName('vote-alert')[0].textContent = text;
     };
     var getVote = function () {
-        // TODO
+        var xhr = new XMLHttpRequest;
+        xhr.open('GET', 'index.php?action=get_vote');
+        xhr.send();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    resArr = JSON.parse(xhr.responseText)
+                    for (var i = 0; i < resArr.length; i++) {
+                        document.getElementById('college-' + resArr[i].id).textContent = resArr[i].count;
+                    }
+                }
+            }
+        }
     };
     var startButtonListener = function () {
         hideStart();
@@ -320,9 +341,26 @@ window.addEventListener('load', function () {
     document.getElementsByClassName('vote-button')[1].addEventListener('click', voteButtonListener);
 
     // 投票
-    var sendVote = function (i) {
-        // TODO
-        setVoteAlert(i);
+    var sendVote = function (college_id) {
+        var xhr = new XMLHttpRequest;
+        xhr.open('POST', 'index.php?action=post_vote');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send('college_id=' + encodeURIComponent(college_id) + '&count=' + encodeURIComponent(score));
+        score = 1;
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    if (xhr.responseText === 'true') {
+                        setVoteAlert('投票成功');
+                        getVote();
+                    } else {
+                        setVoteAlert('未知错误');
+                    }
+                } else {
+                    setVoteAlert(xhr.responseText);
+                }
+            }
+        }
     };
     var collegeSectionListener = function () {
         sendVote(this.dataset.id);
@@ -332,4 +370,5 @@ window.addEventListener('load', function () {
         collegeSections[i].addEventListener('click', collegeSectionListener);
     }
     showStart();
+    getVote();
 });

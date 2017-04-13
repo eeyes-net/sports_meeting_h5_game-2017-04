@@ -127,20 +127,48 @@ function rawReturn($ret)
 }
 
 /**
- * 检查ip是否重复
+ * Ajax返回json
+ *
+ * @param $ret
  */
-function check_ip($table = 'vote_record')
+function errorReturn($ret)
 {
+    http_response_code(403);
+    header('Content-Type: text/plain; charset=UTF-8');
+    echo $ret;
+    exit;
+}
+
+/**
+ * 检查ip是否重复
+ *
+ * @param string $type vote或game
+ */
+function check_ip($type = 'vote')
+{
+    $err_msg = '';
+    switch ($type) {
+        case 'vote':
+            $table = 'vote_record';
+            $created_at = date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME'] - config('VOTE_TIMEOUT'));
+            $err_msg = '你已经投过票了';
+            break;
+        case 'game':
+            $table = 'game_record';
+            $created_at = date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME'] - config('GAME_TIMEOUT'));
+            $err_msg = '你的请求速度太快了';
+            break;
+        default:
+            return null;
+    }
+
     $mysqli = connect_db();
-    $stmt = $mysqli->prepare("SELECT COUNT(*) FROM `$table` WHERE `ip` = ? AND `created_at` > DATE_SUB(NOW(), INTERVAL 1 HOUR)");
+    $stmt = $mysqli->prepare("SELECT 1 FROM `$table` WHERE `ip` = ? AND `created_at` > ? LIMIT 1");
     $ip = get_client_ip();
-    $stmt->bind_param('s', $ip);
-    $count = 2147483647;
-    $stmt->bind_result($count);
+    $stmt->bind_param('ss', $ip, $created_at);
     $stmt->execute();
-    $stmt->fetch();
-    if ($count > config('IP_LIMIT')) {
-        http_response_code(403);
+    if ($stmt->fetch()) {
+        errorReturn($err_msg);
         exit;
     }
 }

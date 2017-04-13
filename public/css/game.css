@@ -44,8 +44,10 @@
 }
 
 .game-block-container div {
+    padding: .5em;
+    background-color: rgba(0, 0, 0, .4);
     overflow: hidden;
-    border: 5px solid red;
+    border-radius: .4em;
     box-sizing: border-box;
 }
 

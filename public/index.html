@@ -11,7 +11,7 @@
 </head>
 <body>
     <div style="display: none;">
-        <img src="" alt="微信分享图片">
+        <img src="images/share.jpg" alt="微信分享图片">
     </div>
 
     <div class="game">
@@ -42,14 +42,11 @@
         <div class="tips-helper"></div>
         <div class="tips-container">
             <div class="start">
-                <h1>游戏说明</h1>
-                <p>触碰屏幕的左下角右下角控制飞机的方向</p>
-                <p>不要让飞机碰到红色边框呦～</p>
-                <p class="sub-text">(半透明的飞机是其他玩家的游戏记录)</p>
-                <p>完成游戏后可以给为自己的书院加油哦</p>
-                <p class="sub-text">不想游戏也可以直接投票</p>
-                <p class="sub-text">飞行越远，票数越多哦</p>
-                <p class="sub-text">(投票有时间限制，每5分钟才可以投一次)</p>
+                <p>点击屏幕左右下角</p>
+                <p>控制飞机</p>
+                <p>穿越障碍物</p>
+                <p>到达创新港</p>
+                <p class="sub-text">飞行越远，票数越多</p>
                 <p>
                     <button class="start-button">开始游戏</button>
                 </p>
@@ -62,17 +59,15 @@
                 <p>你总共飞行了<span class="finish-time"></span>秒</p>
                 <p>飞行了总路程的<span class="finish-distance"></span>%</p>
                 <p>可以为你的书院加<span class="finish-score"></span>分</p>
-                <p class="sub-text">(投票有时间限制，每5分钟才可以投一次)</p>
                 <p>
-                    <button class="vote-button">为书院投票</button>
+                    <button class="start-button">重新开始</button>
                 </p>
                 <p>
-                    <button class="start-button sub-button">重新开始</button>
+                    <button class="vote-button sub-button">为书院投票</button>
                 </p>
             </div>
             <div class="vote">
                 <p>选择你的书院，为之加分吧</p>
-                <p class="sub-text">(投票有时间限制，每5分钟才可以投一次，不能刷票哦)</p>
                 <p class="vote-alert"></p>
                 <ul class="college-container">
                     <li class="college-section" data-id="1">
@@ -155,7 +150,7 @@
         </div>
     </div>
 
-    <!--<audio src="./media/double_face.mp3" style="display: none;" autoplay="autoplay" loop="loop"></audio>-->
+    <audio src="./media/double_face_low.mp3" style="display: none;" autoplay="autoplay" loop="loop"></audio>
     <script src="./js/Game.js"></script>
     <script src="./js/data.js"></script>
     <script src="./js/script.js"></script>

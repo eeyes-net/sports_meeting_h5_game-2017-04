@@ -12,7 +12,7 @@ log_record($_SERVER['REMOTE_ADDR']
     . '"' . "\n");
 
 $action = isset($_GET['action']) ? $_GET['action'] : null;
-switch ($_GET['action']) {
+switch ($action) {
     case 'get_game_record':
         include '../app/game_record.php';
         rawReturn(get_game_record());

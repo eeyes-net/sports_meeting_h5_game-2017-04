@@ -22,7 +22,7 @@ function get_game_record()
 
 function post_game_record()
 {
-    check_ip('game_record');
+    check_ip('game');
 
     $mysqli = connect_db();
     $stmt = $mysqli->prepare("INSERT INTO `game_record` (`data`, `data_md5`, `ip`, `user_agent`) VALUES (?, ?, ?, ?)");
@@ -41,6 +41,9 @@ function post_game_record()
     $stmt->bind_param('bsss', $null, $data_md5, $ip, $user_agent);
     $stmt->send_long_data(0, $data);
     $stmt->execute();
+
+    session_start();
+    $_SESSION['game_record_id'] = $stmt->insert_id;
 
     $stmt->close();
     return true;

@@ -35,13 +35,14 @@
 
 ### 服务器说明
 
-* 记录玩家昵称、完成时间、投票的书院、浏览器UA
+* 记录完成时间、投票的书院、浏览器UA
 
 ## Contributor
 
-* 游戏设计:
-* 图片提供:
-* HTML+CSS+Javascript: Ganlv(@ganlvtech)
+* 游戏设计: Liu Borui
+* 页面设计: @lwyanne
+* 图片提供: Liu Xuan
+* HTML+CSS+Javascript: Ganlv(@ganlvtech), 王豪(@594WangHao)
 
 ## LICENSE
 

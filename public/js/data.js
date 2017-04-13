@@ -2,8 +2,8 @@ Game.data = {};
 Game.data.server = {
     base: '/',
     imgPlanePath: 'images/plane.png',
-    getGameRecordURL: 'api.php?action=get_game_record',
-    postGameRecordURL: 'api.php?action=post_game_record'
+    getGameRecordURL: 'index.php?action=get_game_record',
+    postGameRecordURL: 'index.php?action=post_game_record'
 };
 Game.data.blocks = [
     {pos: [0, 0.5493, 0.3, 1.0013], text: '西安交通大学的前身是1896年创建于上海的南洋公学；1905年划归商部，改名为高等实业学堂'},
