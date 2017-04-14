@@ -48,7 +48,10 @@ function post_vote()
     // TODO check $game_record_id $college_id $count
 
     $stmt->bind_param('sssss', $game_record_id, $college_id, $count, $ip, $user_agent);
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        $stmt->close();
+        return false;
+    }
     $stmt->close();
 
     $stmt = $mysqli->prepare("UPDATE `vote_count` SET `count` = `count` + ? WHERE `id` = ?");
